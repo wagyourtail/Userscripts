@@ -28,3 +28,15 @@ Automatically claims bonuses on Twitch. (Note: This may violate Twitchâ€™s TOSâ€
 ***
 
 To install a script, copy the raw link into your userscript manager (like Tampermonkey).
+
+## External Scripts
+
+These are scripts I don't maintain, but have used, or use in my browser.
+
+### [Adguard Extra](https://userscripts.adtidy.org/release/adguard-extra/1.0/adguard-extra.user.js)
+
+fixed Twitch adblocking, etc.
+
+### [LibbyRip](https://github.com/PsychedelicPalimpsest/LibbyRip)
+
+no comment.
