@@ -8,6 +8,7 @@
 // @updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/hianime.user.js
 // @match        https://hianime.to/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hianime.to
+// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
