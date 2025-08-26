@@ -37,7 +37,7 @@
 
         // dow on details page
         const airedElements = Array.from(document.getElementsByClassName("item-head")).filter(e => e.innerText == "Aired:")
-        if (elements.length > 0) {
+        if (airedElements.length > 0) {
             const element = airedElements[0].parentElement.getElementsByClassName("name")[0];
             const day = weekday[new Date(element.innerText.split(" to ")[0]).getDay()]
             element.innerText = day + " " + element.innerText;
