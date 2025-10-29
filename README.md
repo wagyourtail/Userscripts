@@ -25,6 +25,11 @@ Displays margin percentages for items on skyblock.bz, helping users quickly iden
 
 Automatically claims bonuses on Twitch. (Note: This may violate Twitch’s TOS—use at your own risk!)
 
+
+### [WanderingInn Wiki Links](wanderinginn.user.js)
+
+Add wiki links to wandering inn table of contents.
+
 ***
 
 To install a script, copy the raw link into your userscript manager (like Tampermonkey).
@@ -40,3 +45,4 @@ fixed Twitch adblocking, etc.
 ### [LibbyRip](https://github.com/PsychedelicPalimpsest/LibbyRip)
 
 no comment.
+
