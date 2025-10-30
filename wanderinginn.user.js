@@ -2,7 +2,7 @@
 
 // @name         Wandering Inn Chapters
 // @namespace    http://tampermonkey.net/
-// @version      0.2.1
+// @version      0.2.2
 // @description  Add wiki urls to wandering inn chapter list
 // @author       Wagyourtail
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/wanderinginn.user.js
@@ -32,7 +32,7 @@
         return c
     }
 
-    if (window.location.pathname.startsWith("table-of-contents")) {
+    if (window.location.pathname.includes("table-of-contents")) {
         [...document.getElementsByClassName("body-web")].forEach(e => {
             e.appendChild(createWikiElement(e))
         })
