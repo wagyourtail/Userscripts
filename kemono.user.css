@@ -1,0 +1,22 @@
+/* ==UserStyle==
+@name         Kemono tweaks
+@namespace    userstyles.world
+@description  tweaks for kemono
+@author       wagyourtail
+@homepageURL  https://github.com/wagyourtail/Userscripts
+@supportURL   https://github.com/wagyourtail/Userscripts/issues
+@updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.css
+@preprocessor stylus
+@version      1.0
+
+==/UserStyle== */
+
+@-moz-document regexp("https?://(?:kemono\\..*|coomer\\..*)") {
+.post__nav-links {
+    position: sticky; 
+    top: 0px; 
+    z-index: 10; 
+    background: var(--color1-primary);  
+}
+
+}
