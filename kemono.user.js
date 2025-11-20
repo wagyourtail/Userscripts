@@ -6,8 +6,8 @@
 // @author       Wagyourtail
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.js
 // @updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.js
-// @include        https://kemono.tld/*
-// @include        https://coomer.tld/*
+// @include      https://kemono.tld/*
+// @include      https://coomer.tld/*
 // @run-at       document-end
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=kemono.party
 // @grant        none
