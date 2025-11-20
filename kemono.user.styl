@@ -7,7 +7,7 @@
 @supportURL   https://github.com/wagyourtail/Userscripts/issues
 @updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.styl
 @preprocessor stylus
-@version      1.4
+@version      1.4.1
 
 @var checkbox lightMode 'Use light mode' 0
 ==/UserStyle== */
@@ -20,21 +20,50 @@ Writing UserCSS: https://github.com/openstyles/stylus/wiki/Writing-UserCSS
 
 @-moz-document regexp("https?://(?:kemono\\..*|coomer\\..*)") {
 
-    .post__nav-links {
+    .header.sidebar-retracted {
         position: sticky; 
+        top: 0px;
+        z-index: 2;
+    }
+    
+    .post__nav-links {
+        position: sticky;
         top: 0px; 
-        z-index: 2; 
+        z-index: 1;
         background: var(--background-sidebar);
-        border: solid hsl(0,0%,50%) .125em;
+        border-bottom: solid hsl(0,0%,50%) .125em;
+        border-radius: 10px 10px 0 0;
+        padding: .5rem;
     }
 
+    .post__nav-list {
+        margin: 0;
+    }
+    
     .post__header {
         border-top: none;
+        border-left: none;
+        border-right: none;
         border-radius:0;
+    }
+
+    .post__body {
+        border-left: none;
+        border-right: none;
+    }
+    
+    .post__footer {
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
     }
     
     .main {
-        height: 100%;
+        border: solid hsl(0,0%,50%) .125em;;
+        border-radius: 10px;
+        height: calc(100% - 240px);
+        margin: 1em;
+        padding: 0px !important;
     }
     
     .site-section {
