@@ -7,14 +7,16 @@
 @supportURL   https://github.com/wagyourtail/Userscripts/issues
 @updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.styl
 @preprocessor stylus
-@version      1.1
+@version      1.2
 
 @var checkbox lightMode 'Use light mode' 0
 ==/UserStyle== */
 
-// This userstyle uses Stylus-lang preprocessor.
-// Complete preprocessor documentation at: https://stylus-lang.com
-// Writing UserCSS: https://github.com/openstyles/stylus/wiki/Writing-UserCSS
+/*
+This userstyle uses Stylus-lang preprocessor.
+Complete preprocessor documentation at: https://stylus-lang.com
+Writing UserCSS: https://github.com/openstyles/stylus/wiki/Writing-UserCSS
+*/
 
 @-moz-document regexp("https?://(?:kemono\\..*|coomer\\..*)") {
 
@@ -26,7 +28,7 @@
     }
 
     if (lightMode) {
-        body {
+        html {
           filter: invert(100%);
         }
         img, video {
