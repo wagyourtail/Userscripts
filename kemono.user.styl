@@ -7,9 +7,8 @@
 @supportURL   https://github.com/wagyourtail/Userscripts/issues
 @updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.styl
 @preprocessor stylus
-@version      1.4.2
+@version      1.5
 
-@var checkbox lightMode 'Use light mode' 0
 ==/UserStyle== */
 
 /*
@@ -19,13 +18,63 @@ Writing UserCSS: https://github.com/openstyles/stylus/wiki/Writing-UserCSS
 */
 
 @-moz-document regexp("https?://(?:kemono\\..*|coomer\\..*)") {
-    if (lightMode) {
-        html {
-          filter: invert(100%);
-        }
-        img, video {
-          filter: invert(100%); /* Inverts the images back to normal (double inversion) */
-        }
-    }
 
+    :root {
+        --color0-primary: hsl(0, 0%, 15%); /* Dark background */
+        --color0-secondary: hsl(0, 0%, 30%); /* Medium dark */
+        --color0-tertirary: hsl(0, 0%, 55%); /* Light gray */
+        --color1-primary: hsl(210, 6%, 90%); /* Light primary background */
+        --color1-primary-transparent: hsla(210, 6%, 90%, .75);
+        --color1-secondary: hsl(220, 7%, 75%); /* Lighter */
+        --color1-secondary-transparent: hsla(220, 7%, 75%, .5);
+        --color1-tertiary: hsl(210, 15%, 95%); /* Very light gray */
+        --submit-color1-primary: hsl(200, 100%, 30%); /* Light blue */
+        --submit-color1-secondary: hsl(240, 100%, 70%); /* Lighter purple */
+        --submit-color2-primary: hsl(240, 100%, 70%); /* Same as secondary for symmetry */
+        --submit-color2-secondary: hsl(240, 100%, 70%); /* Same as secondary */
+        --positive-color1-primary: hsl(120, 100%, 65%); /* Lighter green */
+        --positive-color1-secondary: hsl(120, 100%, 50%); /* Green */
+        --negative-color1-primary: hsl(0, 100%, 40%); /* Dark red */
+        --favorite-color1-primary: hsl(51, 100%, 50%); /* Same yellow */
+        --favorite-color2-primary: hsl(60, 100%, 70%); /* Lighter yellow */
+        --favorite-color2-secondary: hsl(60, 100%, 80%); /* Light yellow */
+        --anchor-color1-primary: hsl(200, 100%, 40%); /* Light blue */
+        --anchor-color1-secondary: hsl(210, 70%, 50%); /* Lighter blue */
+        --anchor-color2-primary: hsl(240, 100%, 70%); /* Lighter blue */
+        --anchor-color2-secondary: hsl(230, 70%, 60%); /* Medium blue */
+        --anchor-internal-color1-primary: hsl(20, 100%, 40%); /* Soft yellow */
+        --anchor-internal-color1-secondary: hsl(20, 70%, 50%); /* Warm yellow */
+        --anchor-internal-color2-primary: hsl(30, 100%, 70%); /* Lighter brown */
+        --anchor-internal-color2-secondary: hsl(30, 80%, 60%); /* Lighter brown */
+        --anchor-local-color1-primary: hsl(260, 100%, 60%); /* Light purple */
+        --anchor-local-color1-secondary: hsl(260, 70%, 50%); /* Purple */
+        --anchor-local-color2-primary: hsl(280, 100%, 60%); /* Medium violet */
+        --anchor-local-color2-secondary: hsl(280, 70%, 50%); /* Violet */
+        
+        --background-sidebar: #f0f0f0; /* Light background for sidebar */
+        --background-sidebar-active: #d1d1d5; /* Lighter active state */
+        --background-sidebar-hover: #e1e1e5; /* Lighter hover state */
+        --background-messages: #e8e8ec; /* Light background for messages */
+        --text-color: #121214; /* Dark text for light mode */
+    }
+    
+    .global-sidebar {
+        background: var(--background-sidebar);
+    }
+    
+    input[type="text"], input[type="password"], input[type="number"] {
+        background: var(--color1-primary);
+    }
+    
+    select {
+        background-image: none;
+    }
+    
+    .search-form {
+        background-color: var(--color1-secondary)
+    }
+    
+    .jumbo-welcome-description {
+        color: var(--color1-primary)
+    }
 }
