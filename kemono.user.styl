@@ -7,7 +7,7 @@
 @supportURL   https://github.com/wagyourtail/Userscripts/issues
 @updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.styl
 @preprocessor stylus
-@version      1.2
+@version      1.3
 
 @var checkbox lightMode 'Use light mode' 0
 ==/UserStyle== */
@@ -24,9 +24,16 @@ Writing UserCSS: https://github.com/openstyles/stylus/wiki/Writing-UserCSS
         position: sticky; 
         top: 0px; 
         z-index: 10; 
-        background: var(--color1-primary);  
+        background: var(--background-sidebar);
+        border: solid hsl(0,0%,50%) .125em;
+        border-radius: 10px 10px 0 0;
     }
 
+    .post__header {
+        border-top: none
+        border-radius:0;
+    }
+    
     if (lightMode) {
         html {
           filter: invert(100%);
