@@ -1,0 +1,37 @@
+/* ==UserStyle==
+@name         Kemono tweaks
+@namespace    userstyles.world
+@description  tweaks for kemono
+@author       wagyourtail
+@homepageURL  https://github.com/wagyourtail/Userscripts
+@supportURL   https://github.com/wagyourtail/Userscripts/issues
+@updateURL    https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.styl
+@preprocessor stylus
+@version      1.1
+
+@var checkbox lightMode 'Use light mode' 0
+==/UserStyle== */
+
+// This userstyle uses Stylus-lang preprocessor.
+// Complete preprocessor documentation at: https://stylus-lang.com
+// Writing UserCSS: https://github.com/openstyles/stylus/wiki/Writing-UserCSS
+
+@-moz-document regexp("https?://(?:kemono\\..*|coomer\\..*)") {
+
+    .post__nav-links {
+        position: sticky; 
+        top: 0px; 
+        z-index: 10; 
+        background: var(--color1-primary);  
+    }
+
+    if (lightMode) {
+        body {
+          filter: invert(100%);
+        }
+        img, video {
+          filter: invert(100%); /* Inverts the images back to normal (double inversion) */
+        }
+    }
+
+}
