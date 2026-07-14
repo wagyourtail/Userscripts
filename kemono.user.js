@@ -17,7 +17,7 @@
     'use strict';
 
     setInterval(() => {
-        [...document.querySelectorAll(["[data-discover]"])].forEach(e => {
+        [...document.querySelectorAll(["[data-discover]"]), ...document.querySelectorAll(["[href='#']"])].forEach(e => {
             e.onclick = () => document.querySelector('.main').scrollTo(0, 0)
         })
     }, 500)
