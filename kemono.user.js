@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Kemono tweaks
 // @namespace    http://tampermonkey.net/
-// @version      1.6.2
+// @version      1.6.3
 // @description  tweak to be better on moble and allow prev/next when scrolled
 // @author       Wagyourtail
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.js
@@ -17,7 +17,7 @@
     'use strict';
 
     setInterval(() => {
-        [...document.getElementsByClassName("post__nav-link")].forEach(e => {
+        [...document.querySelectorAll(["[data-discover]"])].forEach(e => {
             e.onclick = () => document.querySelector('.main').scrollTo(0, 0)
         })
     }, 500)
