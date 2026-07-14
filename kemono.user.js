@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Kemono tweaks
 // @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.6.2
 // @description  tweak to be better on moble and allow prev/next when scrolled
 // @author       Wagyourtail
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/kemono.user.js
@@ -76,7 +76,6 @@
         flex-grow: 1;
         border: solid hsl(0,0%,50%) .125em;;
         border-radius: 10px;
-        margin: 1em;
         padding: 0px !important;
         overflow: scroll;
     }
