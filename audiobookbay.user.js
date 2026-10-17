@@ -305,10 +305,14 @@
         max-height: calc(100vh - 128px);
         overflow-y: auto;
         scrollbar-width: none; /* Firefox — still scrollable */
+        -ms-overflow-style: none; /* legacy Edge/IE */
         box-sizing: border-box;
     }
     #lsidebar::-webkit-scrollbar, #rsidebar::-webkit-scrollbar {
-        display: none; /* Chromium/WebKit */
+        display: none; /* Chromium/WebKit/Opera */
+        width: 0;
+        height: 0;
+        background: transparent;
     }
     #lsidebar { border-right: 1px solid #d2ebea; padding-right: 14px; }
     #rsidebar { border-left: 1px solid #d2ebea; padding-left: 14px; }
