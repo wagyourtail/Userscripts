@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-17.1
+// @version      2026-10-17.2
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
@@ -209,6 +209,59 @@
 
     sentinel.addEventListener('click', loadPrev);
 
+    // ---- scroll restore -----------------------------------------------------
+    // Refreshing lands on top of the URL's page; instead remember which post
+    // was at the top of the viewport and scroll it back to the same offset.
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    let anchorPost = null, anchorTop = 0, userScrolled = false;
+
+    // Any user-driven scroll disarms the automatic re-anchor.
+    for (const ev of ['wheel', 'touchmove']) {
+        window.addEventListener(ev, () => { userScrolled = true; }, { passive: true });
+    }
+    window.addEventListener('keydown', e => {
+        if (/^(Page|Arrow|Home|End| )/.test(e.key)) userScrolled = true;
+    });
+
+    window.addEventListener('pagehide', () => {
+        for (const p of content.querySelectorAll(':scope > .post')) {
+            const r = p.getBoundingClientRect();
+            if (r.bottom > 0) {
+                const a = p.querySelector('.postTitle a');
+                if (a) sessionStorage.setItem('abb-scroll', JSON.stringify({
+                    u: location.pathname + location.search, h: a.href, t: r.top
+                }));
+                return;
+            }
+        }
+    });
+
+    function applyAnchor() {
+        if (anchorPost) window.scrollBy(0, anchorPost.getBoundingClientRect().top - anchorTop);
+    }
+
+    function restoreScroll() {
+        try {
+            const d = JSON.parse(sessionStorage.getItem('abb-scroll') || 'null');
+            if (!d || d.u !== location.pathname + location.search) return;
+            const a = [...content.querySelectorAll(':scope > .post .postTitle a')]
+                .find(x => x.href === d.h);
+            if (!a) return;
+            anchorPost = a.closest('.post');
+            anchorTop = d.t;
+            applyAnchor();
+        } catch (e) { /* malformed entry */ }
+    }
+    restoreScroll();
+    // Images load after document-end and shift positions — re-anchor once
+    // everything is in, unless the user already took over scrolling.
+    window.addEventListener('load', () => {
+        if (userScrolled) return;
+        // First pass may have missed the post if it lives in a page that
+        // loaded asynchronously; retry once, else just re-apply the anchor.
+        anchorPost ? applyAnchor() : restoreScroll();
+    });
+
     // Whole card opens its book page; real links inside keep working.
     // ctrl/cmd-click and middle-click open in a new tab.
     function cardLink(e) {
@@ -334,6 +387,16 @@
     flex-direction: column;
     transition: box-shadow .15s ease, transform .15s ease;
     cursor: pointer;
+    /* reserve ~480px for offscreen cards so prepends/restores don't jump;
+       'auto' reuses the real height once a card has rendered */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+}
+
+/* We anchor scroll ourselves on prepend/restore; the browser's own scroll
+   anchoring would double-compensate and overshoot by a page's height. */
+#content, #content * {
+    overflow-anchor: none;
 }
 #content > .post:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,.14);
