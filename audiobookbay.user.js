@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-17.3
+// @version      2026-10-17.5
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
@@ -161,6 +161,7 @@
             frag.appendChild(makeMarker(url, newCurrent.textContent.trim()));
             newPosts.forEach(p => frag.appendChild(p));
             content.insertBefore(frag, anchor);
+            reanchor();
 
             // Keep bottom pagination in sync with the deepest loaded page.
             pagenavi.innerHTML = newNav.innerHTML;
@@ -193,9 +194,11 @@
             newPosts.forEach(p => frag.appendChild(p));
 
             // Prepend above everything loaded so far, keeping scroll position.
+            // Card heights are fixed, so this delta is exact — no drift.
             const before = document.documentElement.scrollHeight;
             content.insertBefore(frag, sentinel.nextSibling);
             window.scrollBy(0, document.documentElement.scrollHeight - before);
+            reanchor();
 
             prevHref = prevUrl(newNav);
             updateSentinel();
@@ -216,7 +219,7 @@
     let anchorPost = null, anchorTop = 0, userScrolled = false;
 
     // Any user-driven scroll disarms the automatic re-anchor.
-    for (const ev of ['wheel', 'touchmove']) {
+    for (const ev of ['wheel', 'touchmove', 'pointerdown']) {
         window.addEventListener(ev, () => { userScrolled = true; }, { passive: true });
     }
     window.addEventListener('keydown', e => {
@@ -244,23 +247,32 @@
         try {
             const d = JSON.parse(sessionStorage.getItem('abb-scroll') || 'null');
             if (!d || d.u !== location.pathname + location.search) return;
-            const a = [...content.querySelectorAll(':scope > .post .postTitle a')]
-                .find(x => x.href === d.h);
-            if (!a) return;
+            const as = [...content.querySelectorAll(':scope > .post .postTitle a')]
+                .filter(x => x.href === d.h);
+            if (!as.length) return;
+            // Books can repeat across pages — prefer the copy inside the
+            // block whose page marker matches the current URL.
+            let a = as[0];
+            for (const cand of as) {
+                let m = cand.closest('.post');
+                while (m && !m.classList.contains('abb-marker')) m = m.previousElementSibling;
+                if (m && m.dataset.url === location.href) { a = cand; break; }
+            }
             anchorPost = a.closest('.post');
             anchorTop = d.t;
             applyAnchor();
         } catch (e) { /* malformed entry */ }
     }
+    // Called after every page insert and at load: finds the anchor post if it
+    // wasn't in the initial document, or re-corrects drift otherwise.
+    function reanchor() {
+        if (userScrolled) return;
+        anchorPost ? applyAnchor() : restoreScroll();
+    }
     restoreScroll();
     // Images load after document-end and shift positions — re-anchor once
     // everything is in, unless the user already took over scrolling.
-    window.addEventListener('load', () => {
-        if (userScrolled) return;
-        // First pass may have missed the post if it lives in a page that
-        // loaded asynchronously; retry once, else just re-apply the anchor.
-        anchorPost ? applyAnchor() : restoreScroll();
-    });
+    window.addEventListener('load', reanchor);
 
     // Whole card opens its book page; real links inside keep working.
     // ctrl/cmd-click and middle-click open in a new tab.
@@ -393,14 +405,16 @@
     flex-direction: column;
     transition: box-shadow .15s ease, transform .15s ease;
     cursor: pointer;
-    /* reserve ~480px for offscreen cards so prepends/restores don't jump;
-       'auto' reuses the real height once a card has rendered */
+    /* Fixed height keeps every row the same size, so prepending a page and
+       scroll-restoring after refresh are exact — no height estimates. */
+    height: 620px;
     content-visibility: auto;
-    contain-intrinsic-size: auto 480px;
+    contain-intrinsic-size: auto 620px;
 }
 
-/* We anchor scroll ourselves on prepend/restore; the browser's own scroll
-   anchoring would double-compensate and overshoot by a page's height. */
+/* We compensate scroll position ourselves on prepend/restore; the browser's
+   own scroll anchoring would double-compensate (and Opera suppresses it at
+   the top of the document anyway). */
 #content, #content * {
     overflow-anchor: none;
 }
@@ -422,8 +436,8 @@
 #content > .post .postInfo > span { margin-left: 0 !important; display: block; }
 
 /* Cover image */
-#content > .post .postContent { width: auto; margin-top: 8px; font-size: 12px; }
-#content > .post .postContent img { max-width: 100%; height: auto; }
+#content > .post .postContent { width: auto; margin-top: 8px; font-size: 12px; flex: 1; min-height: 0; overflow: hidden; }
+#content > .post .postContent img { max-width: 100%; max-height: 320px; width: auto; height: auto; }
 
 /* Meta links pinned to the bottom like a card footer */
 #content > .post .postMeta { width: auto; margin-top: auto; padding-top: 6px; }
