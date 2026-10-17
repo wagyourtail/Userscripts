@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-17.2
+// @version      2026-10-17.3
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
@@ -313,6 +313,12 @@
 }
 #content > :not(.post) {
     grid-column: 1 / -1;
+}
+
+/* Category pages open with an "Free X Audio Books Download" banner — drop it. */
+#content > .archiveTitle,
+#content > .archiveTitle + p {
+    display: none;
 }
 
 /* Replace the fixed 970px float layout (200px sidebar + 470px content +
