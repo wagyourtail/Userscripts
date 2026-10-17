@@ -304,8 +304,11 @@
         top: 112px;
         max-height: calc(100vh - 128px);
         overflow-y: auto;
-        scrollbar-width: thin;
+        scrollbar-width: none; /* Firefox — still scrollable */
         box-sizing: border-box;
+    }
+    #lsidebar::-webkit-scrollbar, #rsidebar::-webkit-scrollbar {
+        display: none; /* Chromium/WebKit */
     }
     #lsidebar { border-right: 1px solid #d2ebea; padding-right: 14px; }
     #rsidebar { border-left: 1px solid #d2ebea; padding-left: 14px; }
