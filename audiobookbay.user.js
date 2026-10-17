@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-17
+// @version      2026-10-17.1
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
