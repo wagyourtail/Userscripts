@@ -4,6 +4,10 @@ A collection of my userscripts for various websites. Each script can be installe
 
 ## Scripts
 
+### [AudioBook Bay Enhanced](audiobookbay.user.js)
+
+Reworks audiobookbay listings: bidirectional infinite scroll with URL tracking, card grid layout, sticky header and sidebars, whole-card click targets, and advanced search as an in-page modal.
+
 ### [MinecraftForge Tweaks](forge.user.js)
 
 Removes adfocus redirection and adds userdev/universal download links to the MinecraftForge files site, making downloads easier and more direct.
