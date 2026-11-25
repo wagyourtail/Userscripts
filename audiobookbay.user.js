@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-10-17.5
+// @version      2026-11-24.1
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
@@ -75,7 +75,13 @@
     window.addEventListener('scroll', () => {
         if (syncScheduled) return;
         syncScheduled = true;
-        requestAnimationFrame(() => { syncScheduled = false; syncUrl(); });
+        requestAnimationFrame(() => {
+            syncScheduled = false;
+            syncUrl();
+            // Fallback for the bottom observer, which only fires on
+            // intersection transitions (see loadNext's finally block).
+            if (!loading && !done && inLoadZone()) loadNext();
+        });
     }, { passive: true });
 
     /** Full-width break line between page groups; also carries the page URL. */
@@ -140,6 +146,13 @@
         };
     }
 
+    /** True while the bottom pagination sits inside the 800px load zone. */
+    function inLoadZone() {
+        return navWrap.getBoundingClientRect().top < window.innerHeight + 800;
+    }
+
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+
     async function loadNext() {
         if (loading || done) return;
         const url = nextUrl(pagenavi);
@@ -149,28 +162,43 @@
         status.textContent = 'Loading…';
 
         try {
-            const { nav: newNav, current: newCurrent, posts: newPosts } = await fetchPage(url);
-            // Out-of-range pages return 200 with no span.current — that's the end.
-            const wanted = url.match(/\/page\/(\d+)/);
-            if (!newCurrent || !newPosts.length ||
-                (wanted && newCurrent.textContent.trim() !== wanted[1])) {
-                return finish('— end of results —');
+            // A linked page that fails to fetch or parse (bot check, truncated
+            // response) gets retried rather than mistaken for the end.
+            for (let attempt = 1; ; attempt++) {
+                try {
+                    const { nav: newNav, current: newCurrent, posts: newPosts } = await fetchPage(url);
+                    const wanted = url.match(/\/page\/(\d+)/);
+                    if (!newCurrent || !newPosts.length ||
+                        (wanted && newCurrent.textContent.trim() !== wanted[1])) {
+                        throw new Error('unexpected page content');
+                    }
+
+                    const frag = document.createDocumentFragment();
+                    frag.appendChild(makeMarker(url, newCurrent.textContent.trim()));
+                    newPosts.forEach(p => frag.appendChild(p));
+                    content.insertBefore(frag, anchor);
+                    reanchor();
+
+                    // Keep bottom pagination in sync with the deepest loaded page.
+                    pagenavi.innerHTML = newNav.innerHTML;
+                    status.textContent = '';
+                    return;
+                } catch (e) {
+                    if (attempt >= 3) throw e;
+                    status.textContent = 'Retrying…';
+                    await sleep(1500 * attempt);
+                }
             }
-
-            const frag = document.createDocumentFragment();
-            frag.appendChild(makeMarker(url, newCurrent.textContent.trim()));
-            newPosts.forEach(p => frag.appendChild(p));
-            content.insertBefore(frag, anchor);
-            reanchor();
-
-            // Keep bottom pagination in sync with the deepest loaded page.
-            pagenavi.innerHTML = newNav.innerHTML;
-            status.textContent = '';
         } catch (e) {
             console.error('[ABB infinite scroll]', e);
-            finish('Failed to load more');
+            seen.delete(url);
+            fail();
         } finally {
             loading = false;
+            // A short appended page can leave .navigation inside the load
+            // zone; the observer only fires on intersection transitions, so
+            // re-check or scrolling stalls with the pagination bar in view.
+            if (!done && inLoadZone()) setTimeout(loadNext, 250);
         }
     }
 
@@ -298,6 +326,19 @@
         done = true;
         status.textContent = msg;
         bottomObserver.disconnect();
+    }
+
+    /** Terminal-looking failure that the user can resume with a click. */
+    function fail() {
+        finish('Failed to load more — click to retry');
+        status.classList.add('abb-retry');
+        status.addEventListener('click', () => {
+            status.classList.remove('abb-retry');
+            done = false;
+            status.textContent = '';
+            bottomObserver.observe(navWrap);
+            loadNext();
+        }, { once: true });
     }
 
     // ---- observers ----------------------------------------------------------
@@ -481,6 +522,11 @@
     margin: 4px 0;
     color: #777;
     font-size: 13px;
+}
+.abb-status.abb-retry {
+    cursor: pointer;
+    color: #207f7b;
+    text-decoration: underline;
 }
 `;
         const style = document.createElement('style');
