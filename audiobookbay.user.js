@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-11-24.1
+// @version      2026-11-24.2
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
@@ -77,6 +77,10 @@
         syncScheduled = true;
         requestAnimationFrame(() => {
             syncScheduled = false;
+            // Scrolls we didn't cause (scrollbar drag, autoscroll, anything
+            // without a wheel/touch/key event) also disarm the re-anchor.
+            if (Math.abs(window.scrollY - expectedY) > 1) userScrolled = true;
+            expectedY = window.scrollY;
             syncUrl();
             // Fallback for the bottom observer, which only fires on
             // intersection transitions (see loadNext's finally block).
@@ -225,7 +229,7 @@
             // Card heights are fixed, so this delta is exact — no drift.
             const before = document.documentElement.scrollHeight;
             content.insertBefore(frag, sentinel.nextSibling);
-            window.scrollBy(0, document.documentElement.scrollHeight - before);
+            scrollBySelf(document.documentElement.scrollHeight - before);
             reanchor();
 
             prevHref = prevUrl(newNav);
@@ -245,6 +249,14 @@
     // was at the top of the viewport and scroll it back to the same offset.
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     let anchorPost = null, anchorTop = 0, userScrolled = false;
+    // Where the viewport should be after our own programmatic scrolls; the
+    // scroll handler above compares against this to spot user scrolls.
+    let expectedY = window.scrollY;
+    /** scrollBy that doesn't count as user input (anchor/prepend shifts). */
+    function scrollBySelf(dy) {
+        window.scrollBy(0, dy);
+        expectedY = window.scrollY;
+    }
 
     // Any user-driven scroll disarms the automatic re-anchor.
     for (const ev of ['wheel', 'touchmove', 'pointerdown']) {
@@ -268,7 +280,7 @@
     });
 
     function applyAnchor() {
-        if (anchorPost) window.scrollBy(0, anchorPost.getBoundingClientRect().top - anchorTop);
+        if (anchorPost) scrollBySelf(anchorPost.getBoundingClientRect().top - anchorTop);
     }
 
     function restoreScroll() {
@@ -348,8 +360,11 @@
     }, { rootMargin: '800px' });
     bottomObserver.observe(navWrap);
 
+    // Backward loading only engages after real user input — otherwise it
+    // fires at page load (the sentinel is in view at scrollY 0) and fetches
+    // the previous page in the background for no reason.
     const topObserver = new IntersectionObserver(entries => {
-        if (entries.some(e => e.isIntersecting)) loadPrev();
+        if (userScrolled && entries.some(e => e.isIntersecting)) loadPrev();
     }, { rootMargin: '600px 0px 0px 0px' });
     if (prevHref) topObserver.observe(sentinel);
 
