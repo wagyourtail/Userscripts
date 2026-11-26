@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AudioBook Bay Enhanced
 // @namespace    http://tampermonkey.net/
-// @version      2026-11-24.2
+// @version      2026-11-24.3
 // @description  Infinite scroll (both directions), card grid layout, sticky header/sidebars, advanced search modal, clickable cards
 // @author       You
 // @downloadURL  https://github.com/wagyourtail/Userscripts/raw/refs/heads/main/audiobookbay.user.js
@@ -79,8 +79,10 @@
             syncScheduled = false;
             // Scrolls we didn't cause (scrollbar drag, autoscroll, anything
             // without a wheel/touch/key event) also disarm the re-anchor.
+            // Mismatched positions are not re-synced, so even sub-pixel-per-
+            // frame scrolling accumulates into a disarm instead of evading it.
             if (Math.abs(window.scrollY - expectedY) > 1) userScrolled = true;
-            expectedY = window.scrollY;
+            else expectedY = window.scrollY;
             syncUrl();
             // Fallback for the bottom observer, which only fires on
             // intersection transitions (see loadNext's finally block).
@@ -588,6 +590,7 @@
 .abb-modal .columns{column-count:2;column-gap:26px;list-style:none;margin:0;padding:0;}
 .abb-modal .columns li{border-bottom:1px solid #eee;padding:5px 5px 4px 0;}
 .abb-modal .columns input[type=checkbox]{margin-right:5px;}
+.abb-modal .abb-form-error{color:#d90202;margin-top:6px;}
 `;
             document.head.appendChild(st);
         }
@@ -673,7 +676,25 @@
                 form.requestSubmit();
             });
         }
-        form.addEventListener('submit', () => serializeAdvForm(form));
+
+        // The site requires a non-empty s (empty submits 301 to nowhere);
+        // its own inline onsubmit guard never fires, so validate here.
+        const sInput = form.querySelector('input.s');
+        const sErr = document.createElement('div');
+        sErr.className = 'abb-form-error';
+        sErr.style.display = 'none';
+        sErr.textContent = 'Please enter a search term.';
+        (submitLink || sInput || form).insertAdjacentElement('afterend', sErr);
+        if (sInput) sInput.addEventListener('input', () => { sErr.style.display = 'none'; });
+        form.addEventListener('submit', e => {
+            if (sInput && !sInput.value.trim()) {
+                e.preventDefault();
+                sErr.style.display = '';
+                sInput.focus();
+                return;
+            }
+            serializeAdvForm(form);
+        });
     }
 
     /** Mirror main.js: collapse checkbox arrays into tt=/cat= hidden params. */
